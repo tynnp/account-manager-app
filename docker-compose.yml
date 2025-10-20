@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./server
+    container_name: server
+    restart: always
+    env_file:
+      - ./server/.env.docker
+    ports:
+      - "8386:8386"
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./client
+      args:
+        VITE_API_BASE: http://localhost:8386/api
+    container_name: client
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
