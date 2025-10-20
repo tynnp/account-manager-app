@@ -37,22 +37,35 @@ export default function AccountList({ accounts, onSelectAccount }: AccountListPr
     }
   };
 
+  // Nếu chưa có tài khoản nào
+  if (!accounts || accounts.length === 0) {
+    return (
+      <div className="text-center text-slate-500 p-8 border border-slate-200 rounded-lg bg-white">
+        Chưa có tài khoản nào được thêm
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       {accounts.map((account) => (
         <div
-          key={account.id}
+          key={account._id} 
           onClick={() => onSelectAccount(account)}
           className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer"
         >
           <div className="flex items-start gap-3">
-            <div className={`${getCategoryColor(account.category)} p-2 rounded-lg text-white flex-shrink-0`}>
+            <div
+              className={`${getCategoryColor(account.category)} p-2 rounded-lg text-white flex-shrink-0`}
+            >
               {getCategoryIcon(account.category)}
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-slate-800 truncate">{account.name}</h3>
               <p className="text-sm text-slate-500 truncate">{account.username}</p>
-              <p className="text-xs text-slate-400 mt-1">{account.passwords.length} mật khẩu</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {account.passwords?.length || 0} mật khẩu
+              </p>
             </div>
             <Edit2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
           </div>

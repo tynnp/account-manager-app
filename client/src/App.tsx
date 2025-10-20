@@ -1,86 +1,150 @@
 import { useState, useEffect } from 'react';
 import PinScreen from './components/PinScreen';
 import MainScreen from './components/MainScreen';
+import Toast from "./components/Toast";
 import { Account } from './types';
-import { MOCK_ACCOUNTS, DEFAULT_PIN } from './mockData';
+
+// URL API backend
+const API_BASE = import.meta.env.VITE_API_BASE
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [pin, setPin] = useState(DEFAULT_PIN);
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // Lấy danh sách account khi đăng nhập
   useEffect(() => {
-    const savedAccounts = localStorage.getItem('accounts');
-    const savedPin = localStorage.getItem('pin');
+    if (!token) return;
+    fetch(`${API_BASE}/accounts`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Không thể tải danh sách tài khoản');
+        return res.json();
+      })
+      .then(data => setAccounts(data))
+      .catch(err => {
+        console.error(err);
+        setToast({ message: "Không tải được danh sách tài khoản", type: "error" });
+      });
+  }, [token]);
 
-    if (savedAccounts) {
-      setAccounts(JSON.parse(savedAccounts));
-    } else {
-      setAccounts(MOCK_ACCOUNTS);
-      localStorage.setItem('accounts', JSON.stringify(MOCK_ACCOUNTS));
-    }
-
-    if (savedPin) {
-      setPin(savedPin);
-    }
-  }, []);
-
-  const handlePinSuccess = () => {
+  // Sau khi đăng nhập
+  const handlePinSuccess = (tokenValue: string) => {
+    localStorage.setItem('token', tokenValue);
+    setToken(tokenValue);
     setIsAuthenticated(true);
+    setToast({ message: "Đăng nhập thành công", type: "success" });
   };
 
+  // Đăng xuất
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken('');
     setIsAuthenticated(false);
   };
 
-  const handleAddAccount = (accountData: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newAccount: Account = {
-      ...accountData,
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const updatedAccounts = [...accounts, newAccount];
-    setAccounts(updatedAccounts);
-    localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+  // Thêm account
+  const handleAddAccount = async (accountData: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const res = await fetch(`${API_BASE}/accounts`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+      if (!res.ok) throw new Error('Không thêm được tài khoản');
+      const newAcc = await res.json();
+      setAccounts([...accounts, newAcc]);
+      setToast({ message: "Thêm tài khoản thành công", type: "success" });
+    } catch (err) {
+      setToast({ message: "Lỗi khi thêm tài khoản", type: "error" });
+      console.error(err);
+    }
   };
 
-  const handleUpdateAccount = (id: string, accountData: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const updatedAccounts = accounts.map(account =>
-      account.id === id
-        ? { ...account, ...accountData, updatedAt: new Date() }
-        : account
-    );
-    setAccounts(updatedAccounts);
-    localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+  // Cập nhật account
+  const handleUpdateAccount = async (id: string, accountData: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const res = await fetch(`${API_BASE}/accounts/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+      if (!res.ok) throw new Error('Không cập nhật được tài khoản');
+      const updated = await res.json();
+      setAccounts(accounts.map(a => (a._id === id ? updated : a)));
+      setToast({ message: "Cập nhật tài khoản thành công", type: "success" });
+    } catch (err) {
+      setToast({ message: "Lỗi khi cập nhật tài khoản", type: "error" });
+      console.error(err);
+    }
   };
 
-  const handleDeleteAccount = (id: string) => {
-    const updatedAccounts = accounts.filter(account => account.id !== id);
-    setAccounts(updatedAccounts);
-    localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+  // Xóa account
+  const handleDeleteAccount = async (id: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/accounts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Không xóa được tài khoản');
+      setAccounts(accounts.filter(a => a._id !== id));
+      setToast({ message: "Xóa tài khoản thành công", type: "success" });
+    } catch (err) {
+      setToast({ message: "Lỗi khi xóa tài khoản", type: "error" });
+      console.error(err);
+    }
   };
 
-  const handleChangePin = (oldPin: string, newPin: string) => {
-    setPin(newPin);
-    localStorage.setItem('pin', newPin);
+  // Đổi PIN
+  const handleChangePin = async (oldPin: string, newPin: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/change-pin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldPin, newPin }),
+      });
+      if (!res.ok) throw new Error('Không đổi được PIN');
+      setToast({ message: "Đổi mã PIN thành công", type: "success" });
+    } catch (err) {
+      setToast({ message: "Lỗi khi đổi mã PIN", type: "error" });
+      console.error(err);
+    }
   };
 
+  // Hiển thị
   if (!isAuthenticated) {
-    return <PinScreen onSuccess={handlePinSuccess} correctPin={pin} />;
+    return <PinScreen onSuccess={handlePinSuccess} />;
   }
 
   return (
-    <MainScreen
-      accounts={accounts}
-      onAddAccount={handleAddAccount}
-      onUpdateAccount={handleUpdateAccount}
-      onDeleteAccount={handleDeleteAccount}
-      onLogout={handleLogout}
-      onChangePin={handleChangePin}
-      currentPin={pin}
-    />
+    <>
+      <MainScreen
+        accounts={accounts}
+        onAddAccount={handleAddAccount}
+        onUpdateAccount={handleUpdateAccount}
+        onDeleteAccount={handleDeleteAccount}
+        onLogout={handleLogout}
+        onChangePin={handleChangePin}
+      />
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </>
   );
+
 }
 
 export default App;

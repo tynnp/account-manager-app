@@ -1,47 +1,67 @@
 import { useState } from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
 
-interface PinScreenProps {
-  onSuccess: () => void;
-  correctPin: string;
-}
+const API_BASE = import.meta.env.VITE_API_BASE
 
-export default function PinScreen({ onSuccess, correctPin }: PinScreenProps) {
+export default function PinScreen({ onSuccess }: { onSuccess: (token: string) => void }) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isShaking, setIsShaking] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleNumberClick = (num: string) => {
-    if (pin.length < 6) {
+    if (pin.length < 6 && !loading) {
       const newPin = pin + num;
       setPin(newPin);
       setError('');
 
       if (newPin.length === 6) {
-        setTimeout(() => {
-          if (newPin === correctPin) {
-            onSuccess();
-          } else {
-            setError('Mã PIN không đúng');
-            setIsShaking(true);
-            setTimeout(() => {
-              setPin('');
-              setIsShaking(false);
-            }, 500);
-          }
-        }, 200);
+        setTimeout(() => tryLogin(newPin), 200);
       }
     }
   };
 
+  const tryLogin = async (enteredPin: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: enteredPin }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        onSuccess(data.token);
+      } else {
+        setError('Mã PIN không đúng');
+        setIsShaking(true);
+        setTimeout(() => {
+          setPin('');
+          setIsShaking(false);
+        }, 500);
+      }
+    } catch (e) {
+      console.error(e);
+      setError('Không thể kết nối tới server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDelete = () => {
-    setPin(pin.slice(0, -1));
-    setError('');
+    if (!loading) {
+      setPin(pin.slice(0, -1));
+      setError('');
+    }
   };
 
   const handleClear = () => {
-    setPin('');
-    setError('');
+    if (!loading) {
+      setPin('');
+      setError('');
+    }
   };
 
   return (
@@ -66,9 +86,7 @@ export default function PinScreen({ onSuccess, correctPin }: PinScreenProps) {
                     : 'bg-slate-700/50 border-slate-600'
                 }`}
               >
-                {i < pin.length && (
-                  <div className="w-3 h-3 bg-white rounded-full"></div>
-                )}
+                {i < pin.length && <div className="w-3 h-3 bg-white rounded-full"></div>}
               </div>
             ))}
           </div>
@@ -85,6 +103,7 @@ export default function PinScreen({ onSuccess, correctPin }: PinScreenProps) {
               <button
                 key={num}
                 onClick={() => handleNumberClick(num)}
+                disabled={loading}
                 className="h-16 bg-slate-700 hover:bg-slate-600 text-white text-2xl font-semibold rounded-xl transition-all active:scale-95 shadow-lg hover:shadow-xl"
               >
                 {num}
@@ -92,27 +111,26 @@ export default function PinScreen({ onSuccess, correctPin }: PinScreenProps) {
             ))}
             <button
               onClick={handleClear}
+              disabled={loading}
               className="h-16 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded-xl transition-all active:scale-95 shadow-lg"
             >
               Xóa hết
             </button>
             <button
               onClick={() => handleNumberClick('0')}
+              disabled={loading}
               className="h-16 bg-slate-700 hover:bg-slate-600 text-white text-2xl font-semibold rounded-xl transition-all active:scale-95 shadow-lg hover:shadow-xl"
             >
               0
             </button>
             <button
               onClick={handleDelete}
+              disabled={loading}
               className="h-16 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded-xl transition-all active:scale-95 shadow-lg"
             >
               Xóa
             </button>
           </div>
-
-          <p className="text-center text-xs text-slate-500 mt-6">
-            Mã PIN mặc định: 123456
-          </p>
         </div>
       </div>
 

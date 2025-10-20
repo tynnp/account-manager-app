@@ -4,15 +4,15 @@ import { Account } from '../types';
 import AccountList from './AccountList';
 import AccountModal from './AccountModal';
 import ChangePinModal from './ChangePinModal';
+import ConfirmModal from './ConfirmModal';
 
 interface MainScreenProps {
   accounts: Account[];
-  onAddAccount: (account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onUpdateAccount: (id: string, account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  onDeleteAccount: (id: string) => void;
+  onAddAccount: (account: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => void;
+  onUpdateAccount: (_id: string, account: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => void;
+  onDeleteAccount: (_id: string) => void;
   onLogout: () => void;
-  onChangePin: (oldPin: string, newPin: string) => void;
-  currentPin: string;
+  onChangePin: (oldPin: string, newPin: string) => Promise<void>;
 }
 
 export default function MainScreen({
@@ -21,13 +21,14 @@ export default function MainScreen({
   onUpdateAccount,
   onDeleteAccount,
   onLogout,
-  onChangePin,
-  currentPin
+  onChangePin
 }: MainScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isChangePinModalOpen, setIsChangePinModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | undefined>();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredAccounts = accounts.filter(account =>
     account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -44,9 +45,9 @@ export default function MainScreen({
     setSelectedAccount(undefined);
   };
 
-  const handleSaveAccount = (accountData: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveAccount = (accountData: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => {
     if (selectedAccount) {
-      onUpdateAccount(selectedAccount.id, accountData);
+      onUpdateAccount(selectedAccount._id, accountData);
     } else {
       onAddAccount(accountData);
     }
@@ -54,15 +55,16 @@ export default function MainScreen({
 
   const handleDeleteAccount = () => {
     if (selectedAccount) {
-      onDeleteAccount(selectedAccount.id);
-      handleCloseModal();
+      setPendingDeleteId(selectedAccount._id);
+      setIsConfirmModalOpen(true);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
       <div className="bg-white shadow-sm border-b border-slate-200">
-       <div className="max-w-8xl mx-auto px-6">
+        <div className="max-w-8xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg">
@@ -93,7 +95,9 @@ export default function MainScreen({
         </div>
       </div>
 
+      {/* Content */}
       <div className="max-w-[1600px] mx-auto px-6 py-8">
+        {/* Thanh tìm kiếm + nút thêm */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -117,6 +121,7 @@ export default function MainScreen({
           </button>
         </div>
 
+        {/* Danh sách tài khoản */}
         {filteredAccounts.length === 0 ? (
           <div className="text-center py-16">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-100 rounded-full mb-4">
@@ -146,6 +151,7 @@ export default function MainScreen({
         )}
       </div>
 
+      {/* Modal thêm / sửa */}
       <AccountModal
         isOpen={isAccountModalOpen}
         onClose={handleCloseModal}
@@ -154,12 +160,34 @@ export default function MainScreen({
         account={selectedAccount}
       />
 
+      {/* Modal đổi PIN */}
       <ChangePinModal
         isOpen={isChangePinModalOpen}
         onClose={() => setIsChangePinModalOpen(false)}
         onSave={onChangePin}
-        currentPin={currentPin}
       />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        title="Xóa tài khoản"
+        message={`Bạn có chắc muốn xóa tài khoản này không?`}
+        confirmText="Xóa"
+        cancelText="Hủy"
+
+        onCancel={() => {
+          setIsConfirmModalOpen(false);
+          setPendingDeleteId(null);
+        }}
+
+        onConfirm={() => {
+          if (pendingDeleteId) {
+            onDeleteAccount(pendingDeleteId);
+            setIsConfirmModalOpen(false);
+            setPendingDeleteId(null);
+          }
+        }}
+      />
+
     </div>
   );
 }

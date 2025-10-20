@@ -1,16 +1,16 @@
 export interface Account {
-  id: string;
+  _id: string; 
   name: string;
   username: string;
   category: 'banking' | 'social' | 'email' | 'work' | 'other';
   passwords: Password[];
   note?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Password {
-  id: string;
+  _id: string;
   label: string;
   value: string;
 }

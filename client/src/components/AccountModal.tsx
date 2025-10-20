@@ -5,7 +5,7 @@ import { Account, Password } from '../types';
 interface AccountModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (account: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => void;
   onDelete?: () => void;
   account?: Account;
 }
@@ -14,7 +14,9 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [category, setCategory] = useState<Account['category']>('other');
-  const [passwords, setPasswords] = useState<Password[]>([{ id: crypto.randomUUID(), label: 'Mật khẩu', value: '' }]);
+  const [passwords, setPasswords] = useState<Password[]>([
+    { _id: crypto.randomUUID(), label: 'Mật khẩu', value: '' },
+  ]);
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -22,35 +24,48 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
       setName(account.name);
       setUsername(account.username);
       setCategory(account.category);
-      setPasswords(account.passwords);
+      setPasswords(account.passwords || []);
       setNote(account.note || '');
     } else {
       setName('');
       setUsername('');
       setCategory('other');
-      setPasswords([{ id: crypto.randomUUID(), label: 'Mật khẩu', value: '' }]);
+      setPasswords([{ _id: crypto.randomUUID(), label: 'Mật khẩu', value: '' }]);
       setNote('');
     }
   }, [account, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ name, username, category, passwords, note });
+    onSave({
+      name,
+      username,
+      category,
+      passwords: passwords.map(p => ({
+        _id: p._id,
+        label: p.label,
+        value: p.value,
+      })),
+      note,
+    });
     onClose();
   };
 
   const addPassword = () => {
-    setPasswords([...passwords, { id: crypto.randomUUID(), label: '', value: '' }]);
+    setPasswords([
+      ...passwords,
+      { _id: crypto.randomUUID(), label: '', value: '' },
+    ]);
   };
 
-  const removePassword = (id: string) => {
+  const removePassword = (id?: string) => {
     if (passwords.length > 1) {
-      setPasswords(passwords.filter(p => p.id !== id));
+      setPasswords(passwords.filter(p => p._id !== id));
     }
   };
 
   const updatePassword = (id: string, field: 'label' | 'value', value: string) => {
-    setPasswords(passwords.map(p => p.id === id ? { ...p, [field]: value } : p));
+    setPasswords(passwords.map(p => (p._id === id ? { ...p, [field]: value } : p)));
   };
 
   const categories = [
@@ -80,6 +95,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
 
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
           <div className="space-y-5">
+            {/* Tên tài khoản */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Tên tài khoản</label>
               <input
@@ -92,6 +108,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
               />
             </div>
 
+            {/* Tên đăng nhập */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Tên đăng nhập/Số tài khoản</label>
               <input
@@ -104,6 +121,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
               />
             </div>
 
+            {/* Danh mục */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Danh mục</label>
               <div className="grid grid-cols-2 gap-3">
@@ -112,11 +130,10 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                     key={cat.value}
                     type="button"
                     onClick={() => setCategory(cat.value as Account['category'])}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${
-                      category === cat.value
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${category === cat.value
                         ? 'border-teal-500 bg-teal-50 text-teal-700'
                         : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
+                      }`}
                   >
                     <cat.icon className="w-5 h-5" />
                     <span className="font-medium">{cat.label}</span>
@@ -125,6 +142,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
               </div>
             </div>
 
+            {/* Mật khẩu */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-slate-700">Mật khẩu</label>
@@ -139,13 +157,15 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
               </div>
               <div className="space-y-3">
                 {passwords.map((password, index) => (
-                  <div key={password.id} className="bg-slate-50 rounded-lg p-4">
+                  <div key={password._id} className="bg-slate-50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-slate-600">Mật khẩu {index + 1}</span>
+                      <span className="text-sm font-medium text-slate-600">
+                        Mật khẩu {index + 1}
+                      </span>
                       {passwords.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removePassword(password.id)}
+                          onClick={() => removePassword(password._id)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -156,7 +176,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                       <input
                         type="text"
                         value={password.label}
-                        onChange={(e) => updatePassword(password.id, 'label', e.target.value)}
+                        onChange={(e) => updatePassword(password._id, 'label', e.target.value)}
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-sm"
                         placeholder="Nhãn (VD: Mật khẩu đăng nhập, Passcode...)"
                         required
@@ -164,7 +184,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                       <input
                         type="text"
                         value={password.value}
-                        onChange={(e) => updatePassword(password.id, 'value', e.target.value)}
+                        onChange={(e) => updatePassword(password._id, 'value', e.target.value)}
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-sm font-mono"
                         placeholder="Mật khẩu"
                         required
@@ -175,6 +195,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
               </div>
             </div>
 
+            {/* Ghi chú */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Ghi chú (tùy chọn)</label>
               <textarea
@@ -187,6 +208,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
             </div>
           </div>
 
+          {/* Nút hành động */}
           <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
             {account && onDelete ? (
               <button
