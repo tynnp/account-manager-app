@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Building2, Mail, Users, Briefcase, FolderOpen } from 'lucide-react';
+import { X, Plus, Trash2, Building2, Mail, Users, Briefcase, FolderOpen, Database } from 'lucide-react';
 import { Account, Password } from '../types';
 
 interface AccountModalProps {
@@ -74,6 +74,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
     { value: 'social', label: 'Mạng xã hội', icon: Users },
     { value: 'work', label: 'Công việc', icon: Briefcase },
     { value: 'other', label: 'Khác', icon: FolderOpen },
+    { value: 'database', label: 'Cơ sở dữ liệu', icon: Database }
   ];
 
   if (!isOpen) return null;

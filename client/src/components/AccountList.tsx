@@ -1,5 +1,5 @@
 import { Account } from '../types';
-import { Building2, Mail, Users, Briefcase, FolderOpen, Edit2 } from 'lucide-react';
+import { Building2, Mail, Users, Briefcase, FolderOpen, Edit2, Database } from 'lucide-react';
 
 interface AccountListProps {
   accounts: Account[];
@@ -17,6 +17,8 @@ export default function AccountList({ accounts, onSelectAccount }: AccountListPr
         return <Users className="w-5 h-5" />;
       case 'work':
         return <Briefcase className="w-5 h-5" />;
+      case 'database':
+        return <Database className="w-5 h-5" />;
       default:
         return <FolderOpen className="w-5 h-5" />;
     }
@@ -32,6 +34,8 @@ export default function AccountList({ accounts, onSelectAccount }: AccountListPr
         return 'bg-purple-500';
       case 'work':
         return 'bg-orange-500';
+      case 'database':
+        return 'bg-green-500';
       default:
         return 'bg-gray-500';
     }
