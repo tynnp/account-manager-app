@@ -2,7 +2,18 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
+[![Express](https://img.shields.io/badge/Express-4.18.2-black.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6+-brightgreen.svg)](https://www.mongodb.com/)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4.2-purple.svg)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38BDF8.svg)](https://tailwindcss.com/)
+[![Lucide React](https://img.shields.io/badge/Lucide--React-icons-blueviolet.svg)](https://lucide.dev/)
+[![JWT](https://img.shields.io/badge/JWT-authentication-orange.svg)](https://jwt.io/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg)](https://www.docker.com/)
+[![Build with Vite](https://img.shields.io/badge/Built%20With-Vite-facc15.svg)](https://vitejs.dev/)
+[![Database](https://img.shields.io/badge/Database-MongoDB-green.svg)](https://www.mongodb.com/)
+[![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com/tynnp/account-manager-app)
 
 **Account Manager App** là một ứng dụng quản lý mật khẩu đơn giản cho phép người dùng lưu trữ, thêm/sửa/xóa tài khoản với mật khẩu đa nhãn, phân loại theo loại (banking, social, email, work, other), và ghi chú. Nếu dự án hữu ích, hãy cho một star nhé!
 
@@ -135,9 +146,9 @@ docker-compose up --build
 ### Services
 - **mongo:** MongoDB container, port 27017, volume `mongo_data`
 - **backend:** Node.js backend, port 8386, env từ `server/.env.docker`
-- **frontend:** React build, port 3000 → 80, arg `VITE_API_BASE=http://localhost:8386/api`
+- **frontend:** React build, port 6677 → 80, arg `VITE_API_BASE=http://localhost:8386/api`
 
-Truy cập app: `http://localhost:3000`
+Truy cập app: `http://localhost:6677`
 
 ### Dừng
 ```bash
