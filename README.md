@@ -195,7 +195,7 @@ interface Account {
 
 ## Cấu trúc Dự án
 ```
-QUANTLYTAIKHOAN/
+account-manager-app/
 ├── client/
 │   ├── src/
 │   │   ├── api/
