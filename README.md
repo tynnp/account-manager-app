@@ -192,7 +192,7 @@ interface Account {
   _id: string;
   name: string;
   username: string;
-  category: 'banking' | 'social' | 'email' | 'work' | 'other';
+  category: 'banking' | 'social' | 'email' | 'work' | 'database' | 'server' | 'archive' | 'other';
   passwords: { _id: string; label: string; value: string }[];
   note?: string;
   createdAt?: string;
