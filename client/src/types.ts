@@ -2,7 +2,7 @@ export interface Account {
   _id: string; 
   name: string;
   username: string;
-  category: 'banking' | 'social' | 'email' | 'work' | 'database' | 'other';
+  category: 'banking' | 'social' | 'email' | 'work' | 'database' | 'server' | 'archive' | 'other';
   passwords: Password[];
   note?: string;
   createdAt?: string;
