@@ -28,6 +28,7 @@ export default function PinScreen({ onSuccess }: { onSuccess: (token: string) =>
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: enteredPin }),
+        
       });
 
       if (res.ok) {

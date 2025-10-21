@@ -24,7 +24,7 @@ async function login(req, res) {
       return res.status(401).json({ message: 'PIN sai' });
     }
 
-    const token = jwt.sign({ sub: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ sub: user._id }, JWT_SECRET, { expiresIn: '30m' });
     res.json({ token });
   } catch (e) {
     console.error(e);
@@ -34,8 +34,6 @@ async function login(req, res) {
 
 async function changePin(req, res) {
   try {
-    console.log('DB PIN:', user.pin);
-    console.log('Client oldPin:', oldPin);
     const { oldPin, newPin } = req.body;
     if (!oldPin || !newPin) return res.status(400).json({ message: 'Thiếu dữ liệu' });
 

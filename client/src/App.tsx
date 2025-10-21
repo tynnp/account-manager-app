@@ -111,13 +111,21 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ oldPin, newPin }),
       });
-      if (!res.ok) throw new Error('Không đổi được PIN');
-      setToast({ message: "Đổi mã PIN thành công", type: "success" });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setToast({ message: data.message || "Lỗi khi đổi mã PIN", type: "error" });
+        return;
+      }
+
+      setToast({ message: data.message || "Đổi mã PIN thành công", type: "success" });
     } catch (err) {
-      setToast({ message: "Lỗi khi đổi mã PIN", type: "error" });
+      setToast({ message: "Không thể kết nối tới server", type: "error" });
       console.error(err);
     }
   };
+
 
   // Hiển thị
   if (!isAuthenticated) {
