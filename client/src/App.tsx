@@ -20,13 +20,20 @@ function App() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
+        if (res.status === 401) {
+          handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+          throw new Error("Token hết hạn hoặc không hợp lệ");
+        }
+
         if (!res.ok) throw new Error('Không thể tải danh sách tài khoản');
         return res.json();
       })
       .then(data => setAccounts(data))
       .catch(err => {
         console.error(err);
-        setToast({ message: "Không tải được danh sách tài khoản", type: "error" });
+        if (err.message !== "Token hết hạn hoặc không hợp lệ") {
+          setToast({ message: "Không tải được danh sách tài khoản", type: "error" });
+        }
       });
   }, [token]);
 
@@ -39,10 +46,11 @@ function App() {
   };
 
   // Đăng xuất
-  const handleLogout = () => {
+  const handleLogout = (msg?: string) => {
     localStorage.removeItem('token');
     setToken('');
     setIsAuthenticated(false);
+    if (msg) setToast({ message: msg, type: "error" });
   };
 
   // Thêm account
@@ -56,6 +64,12 @@ function App() {
         },
         body: JSON.stringify(accountData),
       });
+
+      if (res.status === 401) {
+        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+        return;
+      }
+
       if (!res.ok) throw new Error('Không thêm được tài khoản');
       const newAcc = await res.json();
       setAccounts([...accounts, newAcc]);
@@ -77,6 +91,12 @@ function App() {
         },
         body: JSON.stringify(accountData),
       });
+
+      if (res.status === 401) {
+        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+        return;
+      }
+
       if (!res.ok) throw new Error('Không cập nhật được tài khoản');
       const updated = await res.json();
       setAccounts(accounts.map(a => (a._id === id ? updated : a)));
@@ -93,6 +113,11 @@ function App() {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (res.status === 401) {
+      handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+      return;
+    }
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -127,7 +152,6 @@ function App() {
     }
   };
 
-
   // Hiển thị
   if (!isAuthenticated) {
     return <PinScreen onSuccess={handlePinSuccess} />;
@@ -153,7 +177,6 @@ function App() {
       )}
     </>
   );
-
 }
 
 export default App;
