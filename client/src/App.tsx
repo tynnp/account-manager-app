@@ -89,18 +89,19 @@ function App() {
 
   // Xóa account
   const handleDeleteAccount = async (id: string) => {
-    try {
-      const res = await fetch(`${API_BASE}/accounts/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Không xóa được tài khoản');
-      setAccounts(accounts.filter(a => a._id !== id));
-      setToast({ message: "Xóa tài khoản thành công", type: "success" });
-    } catch (err) {
-      setToast({ message: "Lỗi khi xóa tài khoản", type: "error" });
-      console.error(err);
+    const res = await fetch(`${API_BASE}/accounts/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setToast({ message: data.message || "Không xóa được tài khoản", type: "error" });
+      throw new Error(data.message || "Không xóa được tài khoản");
     }
+
+    setAccounts(accounts.filter(a => a._id !== id));
+    setToast({ message: "Xóa tài khoản thành công", type: "success" });
   };
 
   // Đổi PIN

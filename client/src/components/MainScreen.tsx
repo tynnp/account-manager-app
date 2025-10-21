@@ -173,20 +173,24 @@ export default function MainScreen({
         message={`Bạn có chắc muốn xóa tài khoản này không?`}
         confirmText="Xóa"
         cancelText="Hủy"
-
         onCancel={() => {
           setIsConfirmModalOpen(false);
           setPendingDeleteId(null);
         }}
-
-        onConfirm={() => {
-          if (pendingDeleteId) {
-            onDeleteAccount(pendingDeleteId);
-            setIsConfirmModalOpen(false);
+        onConfirm={async () => {
+          if (!pendingDeleteId) return;
+          try {
+            await onDeleteAccount(pendingDeleteId); 
+            setIsConfirmModalOpen(false);           
             setPendingDeleteId(null);
+            setIsAccountModalOpen(false);        
+            setSelectedAccount(undefined);
+          } catch (err) {
+            console.error(err);
           }
         }}
       />
+
 
     </div>
   );
