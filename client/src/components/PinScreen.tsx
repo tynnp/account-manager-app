@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE
@@ -8,6 +8,23 @@ export default function PinScreen({ onSuccess }: { onSuccess: (token: string) =>
   const [error, setError] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [loading, setLoading] = useState(false);
+
+   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (loading) return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumberClick(e.key);
+      } else if (e.key === 'Backspace') {
+        handleDelete();
+      } else if (e.key === 'Enter' && pin.length === 6) {
+        tryLogin(pin);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pin, loading]);
 
   const handleNumberClick = (num: string) => {
     if (pin.length < 6 && !loading) {
