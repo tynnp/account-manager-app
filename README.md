@@ -15,7 +15,7 @@
 [![Database](https://img.shields.io/badge/Database-MongoDB-green.svg)](https://www.mongodb.com/)
 [![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com/tynnp/account-manager-app)
 
-**Account Manager App** là một ứng dụng quản lý mật khẩu đơn giản cho phép người dùng lưu trữ, thêm/sửa/xóa tài khoản với mật khẩu đa nhãn, phân loại theo loại (banking, social, email, work, other), và ghi chú. Nếu dự án hữu ích, hãy cho một star nhé!
+**Account Manager App** là một ứng dụng quản lý mật khẩu đơn giản cho phép người dùng lưu trữ, thêm/sửa/xóa tài khoản với mật khẩu đa nhãn, phân loại theo loại (banking, social, email, work, ...), và ghi chú. Nếu dự án hữu ích, hãy cho một star nhé!
 
 - **Frontend:** React 18 + TypeScript, Vite, Tailwind CSS, Lucide React. Toast notifications qua React Hot Toast.
 - **Backend:** Node.js + Express.js, MongoDB + Mongoose, JWT authentication, đăng nhập bằng PIN.
