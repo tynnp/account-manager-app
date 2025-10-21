@@ -24,7 +24,7 @@ async function login(req, res) {
       return res.status(401).json({ message: 'PIN sai' });
     }
 
-    const token = jwt.sign({ sub: user._id }, JWT_SECRET, { expiresIn: '1m' });
+    const token = jwt.sign({ sub: user._id }, JWT_SECRET, { expiresIn: '15m' });
     res.json({ token });
   } catch (e) {
     console.error(e);
