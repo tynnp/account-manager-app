@@ -33,7 +33,11 @@ async function createAccount(req, res) {
 
 async function updateAccount(req, res) {
   try {
-    const acc = await Account.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const acc = await Account.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
     if (!acc) return res.status(404).json({ message: 'Không tìm thấy' });
     res.json(acc);
   } catch (e) {

@@ -50,7 +50,7 @@ export default function AccountList({ accounts, onSelectAccount }: AccountListPr
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       {accounts.map((account) => (
         <div
-          key={account._id} 
+          key={account._id}
           onClick={() => onSelectAccount(account)}
           className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer"
         >
@@ -66,6 +66,14 @@ export default function AccountList({ accounts, onSelectAccount }: AccountListPr
               <p className="text-xs text-slate-400 mt-1">
                 {account.passwords?.length || 0} mật khẩu
               </p>
+              <div className="text-[14px] text-slate-400 mt-1 space-y-0.5">
+                {account.createdAt && (
+                  <div>Ngày tạo: {new Date(account.createdAt).toLocaleString()}</div>
+                )}
+                {account.updatedAt && (
+                  <div>Ngày cập nhật: {new Date(account.updatedAt).toLocaleString()}</div>
+                )}
+              </div>
             </div>
             <Edit2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
           </div>

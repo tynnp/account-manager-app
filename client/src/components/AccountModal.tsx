@@ -30,7 +30,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
       setName('');
       setUsername('');
       setCategory('other');
-      setPasswords([{ _id: crypto.randomUUID(), label: 'Mật khẩu', value: '' }]);
+      setPasswords([{ _id: crypto.randomUUID(), label: '', value: '' }]);
       setNote('');
     }
   }, [account, isOpen]);
