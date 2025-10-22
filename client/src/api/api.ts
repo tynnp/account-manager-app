@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8386/api";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export async function apiLogin(pin: string) {
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -6,16 +6,21 @@ export async function apiLogin(pin: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pin }),
   });
-  if (!res.ok) throw new Error("PIN không đúng");
-  return res.json(); 
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "PIN không đúng");
+  return data;
 }
 
 export async function apiGetAccounts(token: string) {
   const res = await fetch(`${API_BASE}/accounts`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Không lấy được dữ liệu");
-  return res.json();
+
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error("TOKEN_EXPIRED");
+  if (!res.ok) throw new Error(data.message || "Không lấy được dữ liệu");
+  return data;
 }
 
 export async function apiCreateAccount(token: string, data: any) {
@@ -27,8 +32,11 @@ export async function apiCreateAccount(token: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Không tạo được tài khoản");
-  return res.json();
+
+  const json = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error("TOKEN_EXPIRED");
+  if (!res.ok) throw new Error(json.message || "Không tạo được tài khoản");
+  return json;
 }
 
 export async function apiUpdateAccount(token: string, id: string, data: any) {
@@ -40,8 +48,11 @@ export async function apiUpdateAccount(token: string, id: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Không cập nhật được tài khoản");
-  return res.json();
+
+  const json = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error("TOKEN_EXPIRED");
+  if (!res.ok) throw new Error(json.message || "Không cập nhật được tài khoản");
+  return json;
 }
 
 export async function apiDeleteAccount(token: string, id: string) {
@@ -49,16 +60,28 @@ export async function apiDeleteAccount(token: string, id: string) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Không xóa được tài khoản");
-  return res.json();
+
+  const json = await res.json().catch(() => ({}));
+  if (res.status === 401) throw new Error("TOKEN_EXPIRED");
+  if (!res.ok) throw new Error(json.message || "Không xóa được tài khoản");
+  return json;
 }
 
 export async function apiChangePin(oldPin: string, newPin: string) {
+  const token = localStorage.getItem('token');
   const res = await fetch(`${API_BASE}/auth/change-pin`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
     body: JSON.stringify({ oldPin, newPin }),
   });
-  if (!res.ok) throw new Error("Không đổi được PIN");
-  return res.json();
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 401) throw new Error("TOKEN_EXPIRED");
+    throw new Error(data.message || "Không đổi được PIN");
+  }
+  return data;
 }

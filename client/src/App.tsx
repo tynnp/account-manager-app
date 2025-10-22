@@ -3,9 +3,22 @@ import PinScreen from './components/PinScreen';
 import MainScreen from './components/MainScreen';
 import Toast from "./components/Toast";
 import { Account } from './types';
+import {
+  apiGetAccounts,
+  apiCreateAccount,
+  apiUpdateAccount,
+  apiDeleteAccount,
+  apiChangePin,
+} from './api/api';
 
-// URL API backend
-const API_BASE = import.meta.env.VITE_API_BASE
+function decodeToken(token: string) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
@@ -13,31 +26,42 @@ function App() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // Lấy danh sách account khi đăng nhập
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/accounts`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => {
-        if (res.status === 401) {
-          handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
-          throw new Error("Token hết hạn hoặc không hợp lệ");
-        }
 
-        if (!res.ok) throw new Error('Không thể tải danh sách tài khoản');
-        return res.json();
-      })
-      .then(data => setAccounts(data))
+    // Giải mã token và tính thời gian còn lại
+    const decoded = decodeToken(token);
+    if (decoded && decoded.exp) {
+      const expiresIn = decoded.exp * 1000 - Date.now();
+
+      if (expiresIn <= 0) {
+        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+        return;
+      }
+
+      // Đặt hẹn giờ tự logout
+      const timer = setTimeout(() => {
+        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+      }, expiresIn);
+
+      return () => clearTimeout(timer);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    apiGetAccounts(token)
+      .then(setAccounts)
       .catch(err => {
         console.error(err);
-        if (err.message !== "Token hết hạn hoặc không hợp lệ") {
-          setToast({ message: "Không tải được danh sách tài khoản", type: "error" });
+        if (err.message === "TOKEN_EXPIRED") {
+          handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+        } else {
+          setToast({ message: err.message || "Không tải được danh sách tài khoản", type: "error" });
         }
       });
   }, [token]);
 
-  // Sau khi đăng nhập
   const handlePinSuccess = (tokenValue: string) => {
     localStorage.setItem('token', tokenValue);
     setToken(tokenValue);
@@ -45,7 +69,6 @@ function App() {
     setToast({ message: "Đăng nhập thành công", type: "success" });
   };
 
-  // Đăng xuất
   const handleLogout = (msg?: string) => {
     localStorage.removeItem('token');
     setToken('');
@@ -53,109 +76,46 @@ function App() {
     if (msg) setToast({ message: msg, type: "error" });
   };
 
-  // Thêm account
   const handleAddAccount = async (accountData: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const res = await fetch(`${API_BASE}/accounts`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData),
-      });
-
-      if (res.status === 401) {
-        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
-        return;
-      }
-
-      if (!res.ok) throw new Error('Không thêm được tài khoản');
-      const newAcc = await res.json();
+      const newAcc = await apiCreateAccount(token, accountData);
       setAccounts([...accounts, newAcc]);
       setToast({ message: "Thêm tài khoản thành công", type: "success" });
     } catch (err) {
       setToast({ message: "Lỗi khi thêm tài khoản", type: "error" });
-      console.error(err);
     }
   };
 
-  // Cập nhật account
-  const handleUpdateAccount = async (id: string, accountData: Omit<Account, '_id' | 'createdAt' | 'updatedAt'>) => {
+  const handleUpdateAccount = async (id: string, data: any) => {
     try {
-      const res = await fetch(`${API_BASE}/accounts/${id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData),
-      });
-
-      if (res.status === 401) {
-        handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
-        return;
-      }
-
-      if (!res.ok) throw new Error('Không cập nhật được tài khoản');
-      const updated = await res.json();
+      const updated = await apiUpdateAccount(token, id, data);
       setAccounts(accounts.map(a => (a._id === id ? updated : a)));
       setToast({ message: "Cập nhật tài khoản thành công", type: "success" });
     } catch (err) {
       setToast({ message: "Lỗi khi cập nhật tài khoản", type: "error" });
-      console.error(err);
     }
   };
 
-  // Xóa account
   const handleDeleteAccount = async (id: string) => {
-    const res = await fetch(`${API_BASE}/accounts/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.status === 401) {
-      handleLogout("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
-      return;
+    try {
+      await apiDeleteAccount(token, id);
+      setAccounts(accounts.filter(a => a._id !== id));
+      setToast({ message: "Xóa tài khoản thành công", type: "success" });
+    } catch {
+      setToast({ message: "Không xóa được tài khoản", type: "error" });
     }
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setToast({ message: data.message || "Không xóa được tài khoản", type: "error" });
-      throw new Error(data.message || "Không xóa được tài khoản");
-    }
-
-    setAccounts(accounts.filter(a => a._id !== id));
-    setToast({ message: "Xóa tài khoản thành công", type: "success" });
   };
 
-  // Đổi PIN
   const handleChangePin = async (oldPin: string, newPin: string) => {
     try {
-      const res = await fetch(`${API_BASE}/auth/change-pin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldPin, newPin }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setToast({ message: data.message || "Lỗi khi đổi mã PIN", type: "error" });
-        return;
-      }
-
-      setToast({ message: data.message || "Đổi mã PIN thành công", type: "success" });
-    } catch (err) {
-      setToast({ message: "Không thể kết nối tới server", type: "error" });
-      console.error(err);
+      const res = await apiChangePin(oldPin, newPin);
+      setToast({ message: res.message || "Đổi mã PIN thành công", type: "success" });
+    } catch {
+      setToast({ message: "Lỗi khi đổi mã PIN", type: "error" });
     }
   };
 
-  // Hiển thị
-  if (!isAuthenticated) {
-    return <PinScreen onSuccess={handlePinSuccess} />;
-  }
+  if (!isAuthenticated) return <PinScreen onSuccess={handlePinSuccess} />;
 
   return (
     <>
@@ -167,13 +127,8 @@ function App() {
         onLogout={handleLogout}
         onChangePin={handleChangePin}
       />
-
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
     </>
   );
