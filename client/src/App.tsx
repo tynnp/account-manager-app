@@ -88,6 +88,35 @@ function App() {
 
   const handleUpdateAccount = async (id: string, data: any) => {
     try {
+      const oldAcc = accounts.find(a => a._id === id);
+      if (!oldAcc) {
+        setToast({ message: "Không tìm thấy tài khoản để cập nhật", type: "error" });
+        return;
+      }
+
+      const ignoredKeys = ["_id", "createdAt", "updatedAt"];
+
+      const isEqual = (a: any, b: any): boolean => {
+        if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) {
+          return a === b;
+        }
+        const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+        for (const key of keys) {
+          if (key === "_id") continue; 
+          if (!isEqual(a[key], b[key])) return false;
+        }
+        return true;
+      };
+
+      const hasChanged = Object.keys(data).some(
+        key => !ignoredKeys.includes(key) && !isEqual(data[key], (oldAcc as any)[key])
+      );
+
+      if (!hasChanged) {
+        setToast({ message: "Không có thay đổi nào để cập nhật", type: "error" });
+        return;
+      }
+
       const updated = await apiUpdateAccount(token, id, data);
       setAccounts(accounts.map(a => (a._id === id ? updated : a)));
       setToast({ message: "Cập nhật tài khoản thành công", type: "success" });
