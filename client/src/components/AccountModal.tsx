@@ -25,7 +25,13 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
       setName(account.name);
       setUsername(account.username);
       setCategory(account.category);
-      setPasswords(account.passwords || []);
+      setPasswords(
+        (account.passwords || []).map(p => ({
+          _id: p._id || crypto.randomUUID(),
+          label: p.label,
+          value: p.value,
+        }))
+      );
       setNote(account.note || '');
       setShowPasswords({});
     } else {
@@ -149,11 +155,10 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                     key={cat.value}
                     type="button"
                     onClick={() => setCategory(cat.value as Account['category'])}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${
-                      category === cat.value
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${category === cat.value
                         ? 'border-teal-500 bg-teal-50 text-teal-700'
                         : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
+                      }`}
                   >
                     <cat.icon className="w-5 h-5" />
                     <span className="font-medium">{cat.label}</span>
