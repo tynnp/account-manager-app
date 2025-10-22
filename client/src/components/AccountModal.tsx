@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Building2, Mail, Users, Briefcase, FolderOpen, Database, Server, FolderArchive } from 'lucide-react';
+import { X, Plus, Trash2, Building2, Mail, Users, Briefcase, FolderOpen, Database, Server, FolderArchive, Eye, EyeOff } from 'lucide-react';
 import { Account, Password } from '../types';
 
 interface AccountModalProps {
@@ -18,6 +18,7 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
     { _id: crypto.randomUUID(), label: 'Mật khẩu', value: '' },
   ]);
   const [note, setNote] = useState('');
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (account) {
@@ -26,12 +27,14 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
       setCategory(account.category);
       setPasswords(account.passwords || []);
       setNote(account.note || '');
+      setShowPasswords({});
     } else {
       setName('');
       setUsername('');
       setCategory('other');
       setPasswords([{ _id: crypto.randomUUID(), label: '', value: '' }]);
       setNote('');
+      setShowPasswords({});
     }
   }, [account, isOpen]);
 
@@ -52,20 +55,33 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
   };
 
   const addPassword = () => {
+    const newId = crypto.randomUUID();
     setPasswords([
       ...passwords,
-      { _id: crypto.randomUUID(), label: '', value: '' },
+      { _id: newId, label: '', value: '' },
     ]);
   };
 
   const removePassword = (id?: string) => {
     if (passwords.length > 1) {
       setPasswords(passwords.filter(p => p._id !== id));
+      setShowPasswords(prev => {
+        const updated = { ...prev };
+        delete updated[id!];
+        return updated;
+      });
     }
   };
 
   const updatePassword = (id: string, field: 'label' | 'value', value: string) => {
     setPasswords(passwords.map(p => (p._id === id ? { ...p, [field]: value } : p)));
+  };
+
+  const toggleShowPassword = (id: string) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   const categories = [
@@ -133,10 +149,11 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                     key={cat.value}
                     type="button"
                     onClick={() => setCategory(cat.value as Account['category'])}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${category === cat.value
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all ${
+                      category === cat.value
                         ? 'border-teal-500 bg-teal-50 text-teal-700'
                         : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                      }`}
+                    }`}
                   >
                     <cat.icon className="w-5 h-5" />
                     <span className="font-medium">{cat.label}</span>
@@ -184,14 +201,27 @@ export default function AccountModal({ isOpen, onClose, onSave, onDelete, accoun
                         placeholder="Nhãn (VD: Mật khẩu đăng nhập, Passcode...)"
                         required
                       />
-                      <input
-                        type="text"
-                        value={password.value}
-                        onChange={(e) => updatePassword(password._id, 'value', e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-sm font-mono"
-                        placeholder="Mật khẩu"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type={showPasswords[password._id] ? 'text' : 'password'}
+                          value={password.value}
+                          onChange={(e) => updatePassword(password._id, 'value', e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-sm font-mono pr-10"
+                          placeholder="Mật khẩu"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowPassword(password._id)}
+                          className="absolute right-2 top-2.5 text-slate-500 hover:text-slate-700"
+                        >
+                          {showPasswords[password._id] ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
