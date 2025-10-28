@@ -1,46 +1,46 @@
 # Account Manager App
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT">
+  <a href="https://opensource.org/licenses/MIT" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
   </a>
-  <a href="https://nodejs.org/">
+  <a href="https://nodejs.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Node.js-18+-green.svg" alt="Node.js" />
   </a>
-  <a href="https://expressjs.com/">
+  <a href="https://expressjs.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Express-4.18.2-black.svg" alt="Express" />
   </a>
-  <a href="https://www.mongodb.com/">
+  <a href="https://www.mongodb.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/MongoDB-6+-brightgreen.svg" alt="MongoDB" />
   </a>
-  <a href="https://react.dev/">
+  <a href="https://react.dev/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/React-18.3.1-61DAFB.svg" alt="React" />
   </a>
-  <a href="https://www.typescriptlang.org/">
+  <a href="https://www.typescriptlang.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/TypeScript-5.5-blue.svg" alt="TypeScript" />
   </a>
-  <a href="https://vitejs.dev/">
+  <a href="https://vitejs.dev/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Vite-5.4.2-purple.svg" alt="Vite" />
   </a>
-  <a href="https://tailwindcss.com/">
+  <a href="https://tailwindcss.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/TailwindCSS-3.4.1-38BDF8.svg" alt="TailwindCSS" />
   </a>
-  <a href="https://lucide.dev/">
+  <a href="https://lucide.dev/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Lucide--React-icons-blueviolet.svg" alt="Lucide React" />
   </a>
-  <a href="https://jwt.io/">
+  <a href="https://jwt.io/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/JWT-authentication-orange.svg" alt="JWT" />
   </a>
-  <a href="https://www.docker.com/">
+  <a href="https://www.docker.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Docker-ready-2496ED.svg" alt="Docker" />
   </a>
-  <a href="https://vitejs.dev/">
+  <a href="https://vitejs.dev/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Built%20With-Vite-facc15.svg" alt="Build with Vite" />
   </a>
-  <a href="https://www.mongodb.com/">
+  <a href="https://www.mongodb.com/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Database-MongoDB-green.svg" alt="Database" />
   </a>
-  <a href="https://github.com/tynnp/account-manager-app">
+  <a href="https://github.com/tynnp/account-manager-app" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Status-Active-success.svg" alt="Status" />
   </a>
 </p>
