@@ -1,19 +1,49 @@
 # Account Manager App
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Express-4.18.2-black.svg)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6+-brightgreen.svg)](https://www.mongodb.com/)
-[![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.4.2-purple.svg)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38BDF8.svg)](https://tailwindcss.com/)
-[![Lucide React](https://img.shields.io/badge/Lucide--React-icons-blueviolet.svg)](https://lucide.dev/)
-[![JWT](https://img.shields.io/badge/JWT-authentication-orange.svg)](https://jwt.io/)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg)](https://www.docker.com/)
-[![Build with Vite](https://img.shields.io/badge/Built%20With-Vite-facc15.svg)](https://vitejs.dev/)
-[![Database](https://img.shields.io/badge/Database-MongoDB-green.svg)](https://www.mongodb.com/)
-[![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com/tynnp/account-manager-app)
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
+  </a>
+  <a href="https://nodejs.org/">
+    <img src="https://img.shields.io/badge/Node.js-18+-green.svg" alt="Node.js" />
+  </a>
+  <a href="https://expressjs.com/">
+    <img src="https://img.shields.io/badge/Express-4.18.2-black.svg" alt="Express" />
+  </a>
+  <a href="https://www.mongodb.com/">
+    <img src="https://img.shields.io/badge/MongoDB-6+-brightgreen.svg" alt="MongoDB" />
+  </a>
+  <a href="https://react.dev/">
+    <img src="https://img.shields.io/badge/React-18.3.1-61DAFB.svg" alt="React" />
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-5.5-blue.svg" alt="TypeScript" />
+  </a>
+  <a href="https://vitejs.dev/">
+    <img src="https://img.shields.io/badge/Vite-5.4.2-purple.svg" alt="Vite" />
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/TailwindCSS-3.4.1-38BDF8.svg" alt="TailwindCSS" />
+  </a>
+  <a href="https://lucide.dev/">
+    <img src="https://img.shields.io/badge/Lucide--React-icons-blueviolet.svg" alt="Lucide React" />
+  </a>
+  <a href="https://jwt.io/">
+    <img src="https://img.shields.io/badge/JWT-authentication-orange.svg" alt="JWT" />
+  </a>
+  <a href="https://www.docker.com/">
+    <img src="https://img.shields.io/badge/Docker-ready-2496ED.svg" alt="Docker" />
+  </a>
+  <a href="https://vitejs.dev/">
+    <img src="https://img.shields.io/badge/Built%20With-Vite-facc15.svg" alt="Build with Vite" />
+  </a>
+  <a href="https://www.mongodb.com/">
+    <img src="https://img.shields.io/badge/Database-MongoDB-green.svg" alt="Database" />
+  </a>
+  <a href="https://github.com/tynnp/account-manager-app">
+    <img src="https://img.shields.io/badge/Status-Active-success.svg" alt="Status" />
+  </a>
+</p>
 
 <p align="center">
   <img src="./assets/demo.png" alt="App Screenshot">
